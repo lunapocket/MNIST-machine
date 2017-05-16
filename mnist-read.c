@@ -4,8 +4,12 @@
 
 #include <stdio.h>
 #include <stdint.h>
-
+#include <stdlib.h> //malloc for test
 #include "mnist-read.h"
+
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
+
 
 /**
  * SWAP bytes from MNIST
@@ -25,20 +29,29 @@ uint32_t swap_bytes(uint32_t original){
 /**
  * desc : get settings(items, rows, cols) from file
  */
-FILE * get_setting(char * path_images, char * path_labels, MNIST_setting * settings){
-	FILE * fp; 
-	if( (fp = fopen(path_images, "rb") ) == NULL )
+void get_setting(char * path_images, char * path_labels, MNIST_setting * settings){
+
+	if( (settings->fp_images = fopen(path_images, "rb") ) == NULL )
+		perror("file open failed");
+
+	if( (settings->fp_labels = fopen(path_labels, "rb") ) == NULL )
 		perror("file open failed");
 
 	settings->num_items = 0;
 	settings->num_rows = 0;
 	settings->num_cols = 0;
 	
-	fread(NULL, 4, 1, fp); //magic number
-	fread(settings->num_items, 4, 1, fp); //number of images
-	fread(settings->num_items)
-	
-	return fp;
+	fseek(settings->fp_images, 4, SEEK_CUR);
+	fseek(settings->fp_labels, 8, SEEK_SET);
+
+	fread(&settings->num_items, 4, 1, settings->fp_images); //number of images
+	fread(&settings->num_rows, 4, 1, settings->fp_images); //number of rows
+	fread(&settings->num_cols, 4, 1, settings->fp_images); //number of cols
+
+	settings->num_items = swap_bytes(settings->num_items);
+	settings->num_cols = swap_bytes(settings->num_cols);
+	settings->num_rows = swap_bytes(settings->num_rows);
+	return;
 }
 
 
@@ -47,6 +60,15 @@ FILE * get_setting(char * path_images, char * path_labels, MNIST_setting * setti
  * @param labels : labels file null if it is training set
  * @return MNIST_image array
  */
-int get_image(FILE * fp_images, char * path_labels, MNIST_image ** images){
+int get_image(MNIST_setting * settings, MNIST_image ** images){
 
+}
+
+int main(){
+	MNIST_setting * set;
+
+	set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
+	get_setting(TRAIN_IMAGES, TRAIN_LABELS, set);
+	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", set->num_items, set->num_rows, set->num_cols);
+	return 0;
 }
