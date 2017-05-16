@@ -22,7 +22,7 @@ typedef struct MNIST_setting {
 } MNIST_setting;
 
 typedef struct MNIST_image {
-	uint8_t pixel[28][28];
+	uint8_t * pixel;
 	uint8_t label;
 } MNIST_image ;
 
@@ -37,4 +37,10 @@ void get_setting(char * path_images, char * path_labels, MNIST_setting * setting
  * @param labels : labels file null if it is training set : path
  * @return int - 1: success, 0: fail, MNIST_image array
  */
-int get_image(MNIST_setting * settings, MNIST_image ** images);
+int get_images(MNIST_setting * settings, MNIST_image ** images);
+
+/**
+ * print mnist image
+ */
+
+void print_image(MNIST_setting * settings, MNIST_image image);

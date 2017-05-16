@@ -9,8 +9,6 @@
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
-
-
 /**
  * SWAP bytes from MNIST
  */
@@ -56,19 +54,63 @@ void get_setting(char * path_images, char * path_labels, MNIST_setting * setting
 
 
 /**
- * @param images : files
- * @param labels : labels file null if it is training set
- * @return MNIST_image array
+ * DESC : get image, file pointer moves
  */
-int get_image(MNIST_setting * settings, MNIST_image ** images){
+MNIST_image get_image(MNIST_setting * settings){
+	MNIST_image image;
+	int image_size;
+	image_size = sizeof(uint8_t)*settings->num_rows*settings->num_cols;
+
+	image.pixel = (uint8_t *)alloca(image_size);
+
+	fread(image.pixel, image_size, 1, settings->fp_images);
+	fread(&image.label, 1, 1, settings->fp_labels);
+
+	return image;
+}
+
+void print_image(MNIST_setting * settings, MNIST_image image){
+	int i, j;
+	uint8_t pixel_threshold = 1;
+	uint8_t * pixel = image.pixel;
+
+	for (i = 0; i < settings->num_rows; i++)
+	{
+		for (j = 0; j < settings->num_cols; j++)
+		{
+			if(*pixel < pixel_threshold)
+				printf(".");
+			else
+				printf("*");
+			pixel = pixel+1;
+		}
+		printf("\n");
+	}
+}
+
+
+int get_images(MNIST_setting * settings, MNIST_image ** images){
 
 }
 
 int main(){
 	MNIST_setting * set;
+	MNIST_image image;
+	char c;
 
 	set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
-	get_setting(TRAIN_IMAGES, TRAIN_LABELS, set);
+	get_setting(TEST_IMAGES, TEST_LABELS, set);
+
+
 	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", set->num_items, set->num_rows, set->num_cols);
+	while(1){
+		image = get_image(set);
+		printf("pixel: %u \nlabel: %u\n",image.pixel[0], image.label);
+		print_image(set, image);
+		scanf("%c", &c);
+		getchar();
+	}
+
+
 	return 0;
 }
