@@ -37,7 +37,7 @@ void get_setting(char * path_images, char * path_labels, MNIST_setting * setting
  * @param labels : labels file null if it is training set : path
  * @return int - 1: success, 0: fail, MNIST_image array
  */
-int get_images(MNIST_setting * settings, MNIST_image ** images);
+MNIST_image * get_images(MNIST_setting * settings);
 
 /**
  * print mnist image

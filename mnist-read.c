@@ -89,27 +89,45 @@ void print_image(MNIST_setting * settings, MNIST_image image){
 }
 
 
-int get_images(MNIST_setting * settings, MNIST_image ** images){
+MNIST_image * get_images(MNIST_setting * settings){
+	MNIST_image * images;
+	int i;
+
+	images = (MNIST_image *)malloc(sizeof(MNIST_image)*settings->num_items);
+
+	for (int i = 0; i < settings->num_items; ++i)
+	{
+		*(images + i) = get_image(settings);
+	}
+
+	return images;
 
 }
 
 int main(){
 	MNIST_setting * set;
 	MNIST_image image;
+	MNIST_image * images;
 	char c;
 
 	set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
 	get_setting(TEST_IMAGES, TEST_LABELS, set);
 
+	images = get_images(set);
+
 
 	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", set->num_items, set->num_rows, set->num_cols);
-	while(1){
-		image = get_image(set);
-		printf("pixel: %u \nlabel: %u\n",image.pixel[0], image.label);
-		print_image(set, image);
-		scanf("%c", &c);
-		getchar();
-	}
+	// while(1){
+	// 	printf("label: %u \n", images->label);
+	// 	images = images + 1;
+	// }
+	// while(1){
+	// 	image = get_image(set);
+	// 	printf("pixel: %u \nlabel: %u\n",image.pixel[0], image.label);
+	// 	print_image(set, image);
+	// 	scanf("%c", &c);
+	// 	getchar();
+	// }
 
 
 	return 0;
