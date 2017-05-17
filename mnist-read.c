@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h> //malloc for test
+#include <stdlib.h>
 #include "mnist-read.h"
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -71,7 +71,7 @@ MNIST_image get_image(MNIST_setting * settings){
 
 void print_image(MNIST_setting * settings, MNIST_image image){
 	int i, j;
-	uint8_t pixel_threshold = 1;
+	uint8_t pixel_threshold = 50;
 	uint8_t * pixel = image.pixel;
 
 	for (i = 0; i < settings->num_rows; i++)
@@ -88,7 +88,6 @@ void print_image(MNIST_setting * settings, MNIST_image image){
 	}
 }
 
-
 MNIST_image * get_images(MNIST_setting * settings){
 	MNIST_image * images;
 	int i;
@@ -104,30 +103,30 @@ MNIST_image * get_images(MNIST_setting * settings){
 
 }
 
-int main(){
-	MNIST_setting * set;
-	MNIST_image image;
-	MNIST_image * images;
-	char c;
+// int main(){
+// 	MNIST_setting * set;
+// 	MNIST_image image;
+// 	MNIST_image * images;
+// 	char c;
 
-	set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
-	get_setting(TEST_IMAGES, TEST_LABELS, set);
+// 	set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
+// 	get_setting(TRAIN_IMAGES, TRAIN_LABELS, set);
 
-	images = get_images(set);
+// 	//images = get_images(set);
 
 
-	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", set->num_items, set->num_rows, set->num_cols);
-	// while(1){
-	// 	printf("label: %u \n", images->label);
-	// 	images = images + 1;
-	// }
-	// while(1){
-	// 	image = get_image(set);
-	// 	printf("pixel: %u \nlabel: %u\n",image.pixel[0], image.label);
-	// 	print_image(set, image);
-	// 	scanf("%c", &c);
-	// 	getchar();
-	// }
+// 	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", set->num_items, set->num_rows, set->num_cols);
+// 	// while(1){
+// 	// 	printf("label: %u \n", images->label);
+// 	// 	images = images + 1;
+// 	// }
+// 	while(1){
+// 		image = get_image(set);
+// 		printf("pixel: %u \nlabel: %u\n",image.pixel[0], image.label);
+// 		print_image(set, image);
+// 		// scanf("%c", &c);
+// 		// getchar();
+// 	}
 
 
 	return 0;

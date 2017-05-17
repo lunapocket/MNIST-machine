@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define TRAIN_LABELS "data/train-labels.idx1-ubyte"
 #define TRAIN_IMAGES "data/train-images.idx3-ubyte"
