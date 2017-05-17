@@ -129,5 +129,5 @@ MNIST_image * get_images(MNIST_setting * settings){
 // 	}
 
 
-	return 0;
-}
+// return 0;
+// }
