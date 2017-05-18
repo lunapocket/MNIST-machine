@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "mnist-1lnn.h"
 
 int main(){
@@ -14,19 +15,14 @@ int main(){
 	set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
 	get_setting(TRAIN_IMAGES, TRAIN_LABELS, set);
 
-	images = get_images(set);
-
-	layer = init_layer(set, *images);
-
-	predict_probs(layer);
-
-	update_weights(layer);
-	
-	predict_probs(layer);
-
-
-
 	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", set->num_items, set->num_rows, set->num_cols);
+
+
+	layer = init_layer(set);
+	train_layer(set, layer);
+
+
+
 	// while(1){
 	// 	printf("label: %u \n", images->label);
 	// 	images = images + 1;

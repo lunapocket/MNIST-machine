@@ -9,10 +9,9 @@
 /**
  * @DESC: init one neuran, load images to input and make random weights
  */
-Neuron * init_neuron(MNIST_setting * setting, MNIST_image image){
+Neuron * init_neuron(MNIST_setting * setting){
 	Neuron * target;
 	int i;
-	int pixel_threshold = 200;
 	
 	target = (Neuron * )malloc(sizeof(Neuron));
 
@@ -20,40 +19,52 @@ Neuron * init_neuron(MNIST_setting * setting, MNIST_image image){
 
 	target->inputs = (uint8_t *)malloc(sizeof(uint8_t)*target->size);
 
-	
-
-	(uint8_t *)malloc(sizeof(uint8_t)*setting->num_cols*setting->num_rows);
-
 	target->weights = (double *)malloc(sizeof(double)*target->size);
-	
-	for (int i = 0; i < target->size; ++i)
-	{
+
+	for (i = 0; i < target->size; ++i){
 		*(target->weights+i) = (double)rand()/(double)RAND_MAX;
-		*(target->inputs+i) = *(image.pixel + i) < pixel_threshold ? 0 : 1;
 	}
 
 	return target;
 }
 
+void update_neuron(Neuron * neuron, MNIST_image image){
+	int i;
+	int pixel_threshold = 150;
+
+	for (i = 0; i < neuron->size; ++i)
+	{
+		*(neuron->inputs+i) = *(image.pixel + i) < pixel_threshold ? 0 : 1;
+	}
+}
+
 /**
- * @DESC: init layers with an image
+ * @DESC: init layers
  */
-Layer * init_layer(MNIST_setting * setting, const MNIST_image image){
+Layer * init_layer(MNIST_setting * setting){
 	Layer * target;
-	int i = 0;
-	
+	int i;	
 	target = (Layer *)malloc(sizeof(Layer));
 
 	for (i = 0; i < 10; ++i)
 	{
-		target->neurons[i] = *(init_neuron(setting, image));
+		target->neurons[i] = *(init_neuron(setting));
 	}
-	
-	target->label = image.label;
 
 	return target;
 }
 
+void update_layer(Layer * layer, MNIST_image image){
+	int i;
+
+	for (int i = 0; i < 10; ++i)
+	{
+		update_neuron(layer->neurons+i, image);
+	}
+	
+	layer->label = image.label;
+
+}
 /**
  * @DESC: calculate output of a neuron, sigmoid(input * weight)
  */
@@ -68,8 +79,8 @@ void predict_prob(Neuron * neuron){
 		sum += *(neuron->inputs + i) * *(neuron->weights + i);
 	}
 	
-	sum = sum / neuron->size;
-	sum = 1/(1+exp(-sum));
+	// sum = sum / neuron->size;
+	// sum = 1/(1+exp(-sum));
 
 	neuron->output = sum;
 }
@@ -80,7 +91,7 @@ void predict_probs(Layer * layer){
 	for (int i = 0; i < 10; ++i)
 	{
 		predict_prob(layer->neurons+i);
-		// printf("%lf : %d\n", (layer->neurons+i)->output, i);
+		printf("%lf : %d\n", (layer->neurons+i)->output, i);
 	}
 }
 
@@ -94,39 +105,98 @@ void update_weights(Layer * layer){
 	double error;
 	int size = layer->neurons->size;
 
+	printf("real label : %d\n", layer->label);
 	for (int i = 0; i < 10; ++i)
 	{
-		error = (i == layer->label) - layer->neurons[i].output;
+		error = (i == layer->label) - (layer->neurons+i)->output;
 		
 		for (int j = 0; j < size; ++j)
 		{
 			*((layer->neurons+i)->weights+j) += LEARNING_RATE * error; 
 		}
-		// printf("error : %lf : %d \n", error, i);
+		printf("error : %lf : %d \n", error, i);
 	}
 }
 
-// /**
-//  * predict what the actual number of the image
-//  * @param layer
-//  * @return int
-//  */
-// int predict(Layer * layer);
+/**
+ * predict what the actual number of the image
+ * @param layer
+ * @return int
+ */
+int predict(Layer * layer){
+	int i;
+	double max;
+	double label_selected;
 
-// *
-//  * use static rate to check success rate
-//  * @param  layer check layer
-//  * @param  init  if initiation, put init = 1 else 0
-//  * @return       success rate
- 
-// double calculate_success_rate(Layer * layer, int init);
+	max = layer->neurons[0].output;
+	label_selected = 0;
+
+	for (int i = 1; i < 10; ++i)
+	{
+		if(max < layer->neurons[i].output){
+			max = layer->neurons[i].output;
+			label_selected = i;
+		}
+	}
+
+	return label_selected;
+}
+
+/**
+ * use static rate to check success rate
+ * @param  layer check layer
+ * @param  init  if initiation, put init = 1 else 0
+ * @return       success rate
+ */
+double calculate_success_rate(Layer * layer, int init){
+	static int num_success;
+	static int num_tries;
+	if(init){
+		num_success = 0;
+		num_tries = 0;
+		return 0;
+	}
+	num_tries += 1;
+
+	if(predict(layer) == (int)layer->label){
+		num_success += 1;
+	}
+
+	return (double)num_success/(double)num_tries;
+}
 
 // /**
 //  * train layers from image sets and get weights
 //  * @param  setting    setting of an MNIST sets
-//  * @return             get layer with optimized weights
+//  * @param  layer      not initiated layer should be given.
+//  * @return            success rate of overall process
 //  */
-// Layer * train_layer(MNIST_settings * setting);
+double train_layer(MNIST_setting * setting, Layer * layer){
+	MNIST_image * images;
+	int num_items = setting->num_items;
+	int i;
+	double success_rate;
+	char c;
+
+	images = get_images(setting);
+	calculate_success_rate(layer, 1);
+
+	for (i = 0; i < num_items; ++i)
+	{
+		update_layer(layer, *(images + i));
+		predict_probs(layer);
+		success_rate = calculate_success_rate(layer, 0);
+		update_weights(layer);
+
+		// if(i > 10000){
+		// 	scanf("%c", &c);
+		// 	getchar();
+		// }
+	}
+	printf("%lf : success_rate \n", success_rate);
+	return success_rate;
+
+}
 
 // /**
 //  * test with given layer

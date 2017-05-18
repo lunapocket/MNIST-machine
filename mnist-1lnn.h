@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "mnist-read.h"
 
-#define LEARNING_RATE 0.05
+#define LEARNING_RATE 0.5
 
 /**
  * neuron that has input, weight and output
@@ -32,13 +32,16 @@ typedef struct Layer{
 /**
  * @DESC: init one neuran, load images to input and make random weights
  */
-Neuron * init_neuran(MNIST_setting * setting, MNIST_image image);
+Neuron * init_neuran(MNIST_setting * setting);
+
+void update_neuron(Neuron * neuron, MNIST_image image);
 
 /**
- * @DESC: init layers with an image
+ * @DESC: init layers
  */
-Layer * init_layer(MNIST_setting * setting, const MNIST_image image);
+Layer * init_layer(MNIST_setting * setting);
 
+void update_layer(Layer * layer, MNIST_image image);
 /**
  * @DESC: calculate output of a neuron, sigmoid(input * weight)
  */
@@ -71,9 +74,9 @@ double calculate_success_rate(Layer * layer, int init);
 /**
  * train layers from image sets and get weights
  * @param  setting    setting of an MNIST sets
- * @return             get layer with optimized weights
+ * @return            success rate of overall process
  */
-Layer * train_layer(MNIST_setting * setting);
+double train_layer(MNIST_setting * setting, Layer * layer);
 
 /**
  * test with given layer
