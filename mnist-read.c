@@ -61,7 +61,7 @@ MNIST_image get_image(MNIST_setting * settings){
 	int image_size;
 	image_size = sizeof(uint8_t)*settings->num_rows*settings->num_cols;
 
-	image.pixel = (uint8_t *)alloca(image_size);
+	image.pixel = (uint8_t *)malloc(image_size);
 
 	fread(image.pixel, image_size, 1, settings->fp_images);
 	fread(&image.label, 1, 1, settings->fp_labels);

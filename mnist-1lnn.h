@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "mnist-read.h"
 
-#define LEARNING_RATE 0.5
+#define LEARNING_RATE 0.05
 
 /**
  * neuron that has input, weight and output

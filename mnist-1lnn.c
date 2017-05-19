@@ -30,7 +30,7 @@ Neuron * init_neuron(MNIST_setting * setting){
 
 void update_neuron(Neuron * neuron, MNIST_image image){
 	int i;
-	int pixel_threshold = 150;
+	int pixel_threshold = 50;
 
 	for (i = 0; i < neuron->size; ++i)
 	{
@@ -79,19 +79,19 @@ void predict_prob(Neuron * neuron){
 		sum += *(neuron->inputs + i) * *(neuron->weights + i);
 	}
 	
-	// sum = sum / neuron->size;
-	// sum = 1/(1+exp(-sum));
+	sum = (sum);
+	sum = 1/(1+exp(-sum));
 
 	neuron->output = sum;
 }
 
 void predict_probs(Layer * layer){
 	int i;
-
+	// printf("real label : %d\n", layer->label);
 	for (int i = 0; i < 10; ++i)
 	{
 		predict_prob(layer->neurons+i);
-		printf("%lf : %d\n", (layer->neurons+i)->output, i);
+		// printf("%lf : %d\n", (layer->neurons+i)->output, i);
 	}
 }
 
@@ -105,16 +105,16 @@ void update_weights(Layer * layer){
 	double error;
 	int size = layer->neurons->size;
 
-	printf("real label : %d\n", layer->label);
 	for (int i = 0; i < 10; ++i)
 	{
 		error = (i == layer->label) - (layer->neurons+i)->output;
 		
 		for (int j = 0; j < size; ++j)
 		{
-			*((layer->neurons+i)->weights+j) += LEARNING_RATE * error; 
+			*((layer->neurons+i)->weights+j) += 
+			     LEARNING_RATE * error * *((layer->neurons+i)->inputs+j); 
 		}
-		printf("error : %lf : %d \n", error, i);
+		// printf("error : %lf : %d \n", error, i);
 	}
 }
 
@@ -151,6 +151,7 @@ int predict(Layer * layer){
 double calculate_success_rate(Layer * layer, int init){
 	static int num_success;
 	static int num_tries;
+	double rate;
 	if(init){
 		num_success = 0;
 		num_tries = 0;
@@ -161,8 +162,11 @@ double calculate_success_rate(Layer * layer, int init){
 	if(predict(layer) == (int)layer->label){
 		num_success += 1;
 	}
+	rate = (double)num_success/(double)num_tries;
 
-	return (double)num_success/(double)num_tries;
+	printf("success: %d, fail: %d, tries: %d rate: %lf\r",
+	     num_success, num_tries - num_success, num_tries, rate);
+	return rate;
 }
 
 // /**
@@ -176,7 +180,6 @@ double train_layer(MNIST_setting * setting, Layer * layer){
 	int num_items = setting->num_items;
 	int i;
 	double success_rate;
-	char c;
 
 	images = get_images(setting);
 	calculate_success_rate(layer, 1);
@@ -193,7 +196,8 @@ double train_layer(MNIST_setting * setting, Layer * layer){
 		// 	getchar();
 		// }
 	}
-	printf("%lf : success_rate \n", success_rate);
+	//printf("%lf : success_rate \n", success_rate);
+	printf("\n");
 	return success_rate;
 
 }
@@ -204,7 +208,31 @@ double train_layer(MNIST_setting * setting, Layer * layer){
 //  * @param  Layer    trained layer
 //  * @return          success rate of overall process
 //  */
-// double test_layer(MNIST_settings * setting, Layer * layer);
+double test_layer(MNIST_setting * setting, Layer * layer){
+	MNIST_image * images;
+	int num_items = setting->num_items;
+	int i;
+	double success_rate;
+
+	images = get_images(setting);
+	calculate_success_rate(layer, 1);
+
+	for (i = 0; i < num_items; ++i)
+	{
+		update_layer(layer, *(images + i));
+		predict_probs(layer);
+		success_rate = calculate_success_rate(layer, 0);
+
+		// if(i > 10000){
+		// 	scanf("%c", &c);
+		// 	getchar();
+		// }
+	}
+	//printf("%lf : success_rate \n", success_rate);
+	printf("\n");
+	return success_rate;
+
+}
 
 
 

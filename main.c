@@ -3,8 +3,9 @@
 #include <time.h>
 #include "mnist-1lnn.h"
 
+MNIST_image get_image(MNIST_setting *);
 int main(){
-	MNIST_setting * set;
+	MNIST_setting * train_set, * test_set;
 	MNIST_image image;
 	MNIST_image * images;
 	Layer * layer;
@@ -12,14 +13,24 @@ int main(){
 
 	srand(time(NULL));
 
-	set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
-	get_setting(TRAIN_IMAGES, TRAIN_LABELS, set);
+	train_set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
+	get_setting(TRAIN_IMAGES, TRAIN_LABELS, train_set);
 
-	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", set->num_items, set->num_rows, set->num_cols);
+	test_set = (MNIST_setting *)malloc(sizeof(MNIST_setting));
+	get_setting(TEST_IMAGES, TEST_LABELS, test_set);
 
+	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", train_set->num_items, train_set->num_rows, train_set->num_cols);
 
-	layer = init_layer(set);
-	train_layer(set, layer);
+	layer = init_layer(train_set);
+	printf("=======training....\n");
+	train_layer(train_set, layer);
+
+	printf("=======testing train set\n");
+	test_layer(train_set, layer);
+
+	printf("=======testing test set\n");
+	test_layer(test_set, layer);
+
 
 
 
