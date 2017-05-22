@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 #include "mnist-1lnn.h"
 
 
@@ -185,11 +186,12 @@ double train_layer(MNIST_setting * setting, Layer * layer){
 
 	images = get_images(setting);
 	calculate_success_rate(layer, 1);
-
+	#pragma omp parallel for private(layer)
 	for (i = 0; i < num_items; ++i)
 	{
 		update_layer(layer, *(images + i));
 		predict_probs(layer);
+		#pragma omp critical(success_rate)
 		success_rate = calculate_success_rate(layer, 0);
 		update_weights(layer);
 
