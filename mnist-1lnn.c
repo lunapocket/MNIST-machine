@@ -75,7 +75,6 @@ void predict_prob(Neuron * neuron){
 
 	sum = 0;
 
-	#pragma omp parallel for reduction(+:sum)
 	for (i = 0; i < neuron->size; ++i)
 	{
 		sum += *(neuron->inputs + i) * *(neuron->weights + i);
@@ -109,7 +108,6 @@ void update_weights(Layer * layer){
 	for (int i = 0; i < 10; ++i)
 	{
 		error = (i == layer->label) - (layer->neurons+i)->output;
-		
 		for (int j = 0; j < size; ++j)
 		{
 			*((layer->neurons+i)->weights+j) += 
@@ -187,16 +185,16 @@ double train_layer(MNIST_setting * setting, Layer * layer){
 	images = get_images(setting);
 	calculate_success_rate(layer, 1);
 
-	//#pragma omp parallel for shared(success_rate)
+	#pragma omp parallel for shared(success_rate)
 	for (i = 0; i < num_items; ++i)
 	{
 		update_layer(layer, *(images + i));
 		predict_probs(layer);
-		//#pragma omp critical
-		
-		success_rate = calculate_success_rate(layer, 0);
-		
-		update_weights(layer);
+		#pragma omp critical
+		{
+			success_rate = calculate_success_rate(layer, 0);
+			update_weights(layer);
+		}
 
 		// if(i > 10000){
 		// 	scanf("%c", &c);
@@ -225,12 +223,15 @@ double test_layer(MNIST_setting * setting, Layer * layer){
 	images = get_images(setting);
 	calculate_success_rate(layer, 1);
 
+	#pragma omp parallel for shared(success_rate)
 	for (i = 0; i < num_items; ++i)
 	{
 		update_layer(layer, *(images + i));
-		predict_probs(layer);
-		success_rate = calculate_success_rate(layer, 0);
-
+		#pragma omp critical
+		{
+			predict_probs(layer);
+			success_rate = calculate_success_rate(layer, 0);
+		}
 		// if(i > 10000){
 		// 	scanf("%c", &c);
 		// 	getchar();
