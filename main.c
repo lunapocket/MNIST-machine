@@ -23,15 +23,15 @@ int main(){
 	get_setting(TEST_IMAGES, TEST_LABELS, test2_set);
 	printf("num_item: %u \nnum_rows: %u \nnum_cols: %u \n", train_set->num_items, train_set->num_rows, train_set->num_cols);
 	
-	layer = init_layer(train_set);
-	printf("=======training....\n");
-	train_layer(train_set, layer);
+			layer = init_layer(train_set);
+			printf("=======training....\n");
+			train_layer(train_set, layer);
 
-	printf("=======testing train set\n");
-	test_layer(test1_set, layer);
+			printf("=======testing train set\n");
+			test_layer(test1_set, layer);
 
-	printf("=======testing test set\n");
-	test_layer(test2_set, layer);
+			printf("=======testing test set\n");
+			test_layer(test2_set, layer);
 
 
 
