@@ -155,6 +155,7 @@ double calculate_success_rate(Layer * layer, int init){
 	if(init){
 		num_success = 0;
 		num_tries = 0;
+		// printf("initiated %d\n", (int)layer->label);
 		return 0;
 	}
 	num_tries += 1;
@@ -162,6 +163,7 @@ double calculate_success_rate(Layer * layer, int init){
 	if(predict(layer) == (int)layer->label){
 		num_success += 1;
 	}
+	// printf("predict : %d/ real : %d\r", predict(layer), (int)layer->label);
 	rate = (double)num_success/(double)num_tries;
 
 	printf("success: %d, fail: %d, tries: %d rate: %lf\r",
@@ -205,7 +207,7 @@ double train_layer(MNIST_setting * setting, Layer * layer){
 // /**
 //  * test with given layer
 //  * @param  setting image sets
-//  * @param  Layer    trained layer
+//  * @param  Layer    trained l(http://yann.lecun.com/exdb/mnist/)ayer
 //  * @return          success rate of overall process
 //  */
 double test_layer(MNIST_setting * setting, Layer * layer){
