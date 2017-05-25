@@ -185,7 +185,7 @@ double train_layer(MNIST_setting * setting, Layer * layer){
 	images = get_images(setting);
 	calculate_success_rate(layer, 1);
 
-	#pragma omp parallel for shared(success_rate)
+	#pragma omp parallel for shared(success_rate) schedule(static, 10000)
 	for (i = 0; i < num_items; ++i)
 	{
 		update_layer(layer, *(images + i));
@@ -223,7 +223,7 @@ double test_layer(MNIST_setting * setting, Layer * layer){
 	images = get_images(setting);
 	calculate_success_rate(layer, 1);
 
-	#pragma omp parallel for shared(success_rate)
+	#pragma omp parallel for shared(success_rate) schedule(static, 5000)
 	for (i = 0; i < num_items; ++i)
 	{
 		update_layer(layer, *(images + i));
